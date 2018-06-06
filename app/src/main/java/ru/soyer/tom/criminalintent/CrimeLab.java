@@ -3,6 +3,7 @@ package ru.soyer.tom.criminalintent;
 import android.content.Context;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +38,8 @@ public class CrimeLab {
     }
 
     public Crime getCrime(UUID id) {
-        for (Crime crime : mCrimes) {
+        for (Iterator<Crime> iter = mCrimes.iterator(); iter.hasNext(); ) {
+            Crime crime = iter.next();
             if (crime.getId().equals(id)) {
                 return crime;
             }
