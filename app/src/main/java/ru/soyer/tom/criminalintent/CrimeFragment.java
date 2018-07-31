@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -40,7 +41,7 @@ import java.util.UUID;
  * Created by elenaozerova on 25/05/2018.
  */
 
-public class CrimeFragment extends Fragment {
+public class CrimeFragment extends Fragment implements ViewTreeObserver.OnGlobalLayoutListener {
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
@@ -215,6 +216,8 @@ public class CrimeFragment extends Fragment {
         });
 
         mPhotoView = v.findViewById(R.id.crime_photo);
+        mPhotoView.getViewTreeObserver().addOnGlobalLayoutListener(this);
+
         mPhotoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -223,7 +226,7 @@ public class CrimeFragment extends Fragment {
                 dialog.show(manager, DIALOG_PHOTO);
             }
         });
-        updatePhotoView();
+
 
         return v;
     }
@@ -270,7 +273,7 @@ public class CrimeFragment extends Fragment {
             getActivity().revokeUriPermission(uri,
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
-            updatePhotoView();
+//            updatePhotoView();
         }
 //        if (requestCode == REQUEST_TIME) {
 //            Date date = (Date) data
@@ -313,8 +316,9 @@ public class CrimeFragment extends Fragment {
         if (mPhotoFile == null || !mPhotoFile.exists()) {
             mPhotoView.setImageDrawable(null);
         } else {
-            Bitmap bitmap = PictureUtils.getScaledBitmap(
-                    mPhotoFile.getPath(), getActivity());
+//            Bitmap bitmap = PictureUtils.getScaledBitmap(
+//                    mPhotoFile.getPath(), getActivity());
+            Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(), mPhotoView.getWidth(), mPhotoView.getHeight());
             mPhotoView.setImageBitmap(bitmap);
         }
     }
@@ -326,4 +330,8 @@ public class CrimeFragment extends Fragment {
 //        mTimeButton.setText(df.format(cal.getTime()));
     }
 
+    @Override
+    public void onGlobalLayout() {
+        updatePhotoView();
+    }
 }
