@@ -1,12 +1,12 @@
 package ru.soyer.tom.criminalintent;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * Created by elenaozerova on 25/05/2018.
@@ -66,6 +67,20 @@ public class CrimeListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
         mCrimeRecyclerView = view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        ItemTouchHelper mIth = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return true;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                ((CrimeAdapter) mCrimeRecyclerView.getAdapter()).removeAt(viewHolder.getLayoutPosition());
+            }
+        });
+
+        mIth.attachToRecyclerView(mCrimeRecyclerView);
 
         if (saveInstanceState != null) {
             mSubtitleVisible = saveInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
@@ -142,7 +157,7 @@ public class CrimeListFragment extends Fragment {
         activity.getSupportActionBar().setSubtitle(subtitle);
     }
 
-    private void updateUI() {
+    public void updateUI() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
@@ -205,6 +220,7 @@ public class CrimeListFragment extends Fragment {
 //            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
 //            startActivity(intent);
         }
+
     }
 
     private class CrimeHolder2 extends RecyclerView.ViewHolder {
@@ -242,6 +258,13 @@ public class CrimeListFragment extends Fragment {
 
         public CrimeAdapter(List<Crime> crimes) {
             mCrimes = crimes;
+        }
+
+        public void removeAt(int position) {
+            UUID uuid = mCrimes.get(position).getId();
+            mCrimes.remove(position);
+            notifyDataSetChanged();
+            CrimeLab.get(getActivity()).DeleteCrimeBy(uuid);
         }
 
         @Override

@@ -80,6 +80,13 @@ public class CrimeLab {
         }
     }
 
+    public void DeleteCrimeBy(UUID id) {
+        mDatabase.delete(CrimeTable.NAME,
+                CrimeTable.Cols.UUID + " = ?",
+                new String[] { id.toString() }
+                );
+    }
+
     public File getPhotoFile(Crime crime) {
         File filesDir = mContext.getFilesDir();
         return new File(filesDir, crime.getPhotoFileName());
